@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "808898733841",
+    "firebase_url": "https://subra-b0cb0.firebaseio.com",
+    "project_id": "subra-b0cb0",
+    "storage_bucket": "subra-b0cb0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:808898733841:android:d24db1fdf993be37848eb0",
+        "android_client_info": {
+          "package_name": "com.subra.firebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "808898733841-u9m5mqr1sr57c6j396eq6ggu2n8kku76.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.subra.firebase",
+            "certificate_hash": "0ef1e50fb06c19f7b860a4c07af811615f51034f"
+          }
+        },
+        {
+          "client_id": "808898733841-gjus38m2q9g5m178qqdopm0o8l0750c2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWm5CEmHuhMZsNvsxq8rXOJTBWlHAAYHI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "808898733841-gjus38m2q9g5m178qqdopm0o8l0750c2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
