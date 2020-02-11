@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.ImageDecoder;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
@@ -104,6 +105,73 @@ public class Utility {
             e.printStackTrace();
         }
     }*/
+
+    private static Bitmap getBitmapFromUri(Context mActivity, Uri uri) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                return ImageDecoder.decodeBitmap(ImageDecoder.createSource(mActivity.getContentResolver(), uri));
+            } else {
+                return MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), uri);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //BitmapRegionDecoder decoder = BitmapRegionDecoder.newInstance(myStream, false);
+        //Bitmap region = decoder.decodeRegion(new Rect(10, 10, 50, 50), null);
+
+        return null;
+    }
+
+    //===============================================| Handling large Bitmap
+    public static Bitmap getDownBitmap(Context ctx, Uri uri, int targetWidth, int targetHeight) {
+        Bitmap bitmap = null;
+        try {
+            BitmapFactory.Options outDimens = getBitmapDimensions(ctx, uri);
+            int sampleSize = calculateSampleSize(outDimens.outWidth, outDimens.outHeight, targetWidth, targetHeight);
+            bitmap = downBitmap(ctx, uri, sampleSize);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bitmap;
+    }
+
+    private static BitmapFactory.Options getBitmapDimensions(Context ctx, Uri uri) throws IOException {
+        BitmapFactory.Options outDimens = new BitmapFactory.Options();
+        outDimens.inJustDecodeBounds = true; // the decoder will return null (no bitmap)
+
+        InputStream is= ctx.getContentResolver().openInputStream(uri);
+        // if Options requested only the size will be returned
+        BitmapFactory.decodeStream(is, null, outDimens);
+        is.close();
+        return outDimens;
+    }
+
+    private static int calculateSampleSize(int width, int height, int targetWidth, int targetHeight) {
+        int inSampleSize = 1;
+        if (height > targetHeight || width > targetWidth) {
+            // Calculate ratios of height and width to requested height and width
+            final int heightRatio = Math.round((float) height / (float) targetHeight);
+            final int widthRatio = Math.round((float) width / (float) targetWidth);
+
+            // Choose the smallest ratio as inSampleSize value, this will guarantee a final image with both dimensions larger than or equal to the requested height and width.
+            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+        }
+        return inSampleSize;
+    }
+
+    private static Bitmap downBitmap(Context ctx, Uri uri, int sampleSize) throws IOException {
+        Bitmap resizedBitmap;
+        BitmapFactory.Options outBitmap = new BitmapFactory.Options();
+        outBitmap.inJustDecodeBounds = false; // the decoder will return a bitmap
+        outBitmap.inSampleSize = sampleSize;
+
+        InputStream is = ctx.getContentResolver().openInputStream(uri);
+        resizedBitmap = BitmapFactory.decodeStream(is, null, outBitmap);
+        is.close();
+
+        return resizedBitmap;
+    }
 
     //===============================================| ProgressDialog
     public static ProgressDialog showProgressDialog(Context mActivity, final String message, boolean isCancelable) {
