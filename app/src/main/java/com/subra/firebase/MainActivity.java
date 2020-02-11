@@ -7,8 +7,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -22,6 +25,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
+import java.io.ByteArrayOutputStream;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -77,20 +82,39 @@ public class MainActivity extends AppCompatActivity {
             Uri uri = data.getData();
             imageView.setImageURI(uri);
 
-            uploadImageToStorage(uri);
+            Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
+            if (bitmap != null) {
+                uploadImageToStorage();
+            }
         }
     }
 
-    //===============================================| Save image to firebase storage
-    public void uploadImageToStorage(Uri uri) {
+    private void uploadImageToStorage() {
+        final ProgressDialog mDialog = Utility.showProgressDialog(this, "waiting...", true);
         final StorageReference storageRef = FirebaseStorage.getInstance().getReference("Img/sample.jpg");
-        if (uri != null) {
-            storageRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Log.d(TAG, "Success");
-                }
-            });
-        }
+
+        imageView.setDrawingCacheEnabled(true);
+        imageView.buildDrawingCache();
+        Bitmap bitmap = imageView.getDrawingCache();
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        byte[] data = stream.toByteArray();
+
+        storageRef.putBytes(data).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot snapshot) {
+                long bytes = snapshot.getBytesTransferred();
+                Log.d(TAG,  (bytes/1024) +" KB" +" | "+ snapshot.getUploadSessionUri());
+                Utility.dismissProgressDialog(mDialog);
+
+                storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        String url = uri.toString();
+                        Log.d(TAG, url);
+                    }
+                });
+            }
+        });
     }
 }
