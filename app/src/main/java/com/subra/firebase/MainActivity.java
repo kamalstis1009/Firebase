@@ -23,6 +23,7 @@ import android.widget.ImageView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -90,7 +91,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void uploadImageToStorage() {
-        final ProgressDialog mDialog = Utility.showProgressDialog(this, "waiting...", true);
+        final ProgressDialog mProgress = Utility.showProgressDialog(this, "waiting...", true);
+
         final StorageReference storageRef = FirebaseStorage.getInstance().getReference("Img/sample.jpg");
 
         mImageView.setDrawingCacheEnabled(true);
@@ -105,15 +107,23 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(UploadTask.TaskSnapshot snapshot) {
                 long bytes = snapshot.getBytesTransferred();
                 Log.d(TAG,  (bytes/1024) +" KB");
-                Utility.dismissProgressDialog(mDialog);
-
                 storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
                         String url = uri.toString();
                         Log.d(TAG, url);
+                        //Utility.dismissProgressDialog(mProgress);
                     }
                 });
+            }
+        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                long progress = (100 * snapshot.getBytesTransferred()) / snapshot.getTotalByteCount();
+                mProgress.setMessage("Uploading "+progress+"%");
+                if (progress == 100) {
+                    Utility.dismissProgressDialog(mProgress);
+                }
             }
         });
     }
