@@ -33,18 +33,18 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int GALLERY_REQUEST_CODE = 11;
     private static final int GALLERY_PERMISSIONS_REQUEST_CODE = 22;
-    private ImageView imageView;
+    private ImageView mImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        imageView = findViewById(R.id.image_view);
+        mImageView = findViewById(R.id.image_view);
         EditText editText = findViewById(R.id.text_input);
         Button button = findViewById(R.id.submit_button);
 
-        imageView.setOnClickListener(new View.OnClickListener() {
+        mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -80,9 +80,9 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
             Uri uri = data.getData();
-            imageView.setImageURI(uri);
+            mImageView.setImageURI(uri);
 
-            Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
+            Bitmap bitmap = ((BitmapDrawable)mImageView.getDrawable()).getBitmap();
             if (bitmap != null) {
                 uploadImageToStorage();
             }
@@ -93,9 +93,9 @@ public class MainActivity extends AppCompatActivity {
         final ProgressDialog mDialog = Utility.showProgressDialog(this, "waiting...", true);
         final StorageReference storageRef = FirebaseStorage.getInstance().getReference("Img/sample.jpg");
 
-        imageView.setDrawingCacheEnabled(true);
-        imageView.buildDrawingCache();
-        Bitmap bitmap = imageView.getDrawingCache();
+        mImageView.setDrawingCacheEnabled(true);
+        mImageView.buildDrawingCache();
+        Bitmap bitmap = mImageView.getDrawingCache();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         byte[] data = stream.toByteArray();
