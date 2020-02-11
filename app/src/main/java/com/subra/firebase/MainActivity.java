@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot snapshot) {
                 long bytes = snapshot.getBytesTransferred();
-                Log.d(TAG,  (bytes/1024) +" KB" +" | "+ snapshot.getUploadSessionUri());
+                Log.d(TAG,  (bytes/1024) +" KB");
                 Utility.dismissProgressDialog(mDialog);
 
                 storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
